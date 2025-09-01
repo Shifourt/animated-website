@@ -1,33 +1,47 @@
+// About.tsx
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
-
 import AnimatedTitle from "./AnimatedTitle";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const About = () => {
   useGSAP(() => {
-    const clipAnimation = gsap.timeline({
+    const tl = gsap.timeline({
       scrollTrigger: {
         trigger: "#clip",
-        start: "center center",
-        end: "+=800 center",
-        scrub: 0.5,
+        start: "top top",
+        end: "+=1000",
+        scrub: true,
         pin: true,
         pinSpacing: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
       },
     });
 
-    clipAnimation.to(".mask-clip-path", {
-      width: "100vw",
-      height: "100vh",
-      borderRadius: 0,
-    });
+    // Grow from small -> fullscreen (locked to small viewport height)
+    tl.fromTo(
+      ".mask-clip-path",
+      {
+        width: "18rem",          // ~ w-72
+        height: "60svh",         // stable on mobile (no URL bar jump)
+        borderRadius: "1.5rem",  // ~ rounded-3xl
+      },
+      {
+        width: "100vw",
+        height: "100svh",
+        borderRadius: 0,
+        ease: "none",
+        immediateRender: false,
+      }
+    );
   });
 
   return (
-    <div id="about" className="min-h-screen w-screen">
+    <div id="about" className="w-screen min-h-screen">
+      {/* Text */}
       <div className="relative mb-8 mt-36 flex flex-col items-center gap-5">
         <p className="font-general text-sm uppercase md:text-[10px]">
           Welcome to Zentry
@@ -47,8 +61,13 @@ const About = () => {
         </div>
       </div>
 
-      <div className="h-dvh w-screen" id="clip">
-        <div className="mask-clip-path about-image">
+      {/* Pinned / animated section */}
+      <div id="clip" className="relative w-screen h-[100svh] overflow-hidden">
+        <div
+          className="mask-clip-path absolute left-1/2 top-0 z-20 -translate-x-1/2
+                     w-[18rem] h-[60svh] overflow-hidden rounded-3xl"
+          style={{ willChange: "width, height, border-radius" }}
+        >
           <img
             src="img/about.webp"
             alt="Background"
